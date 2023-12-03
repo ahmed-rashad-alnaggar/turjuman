@@ -1,0 +1,41 @@
+{
+    "name": "alnaggar/turjuman",
+    "description": "Laravel package for route localization",
+    "keywords": [
+        "laravel",
+        "route",
+        "translation",
+        "localization"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "أحمد رشاد النجار",
+            "email": "ahmed.rashad.alnaggar@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": "^8.1.0",
+        "laravel/framework": "^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Alnaggar\\Turjuman\\": "src/"
+        },
+        "files": [
+            "helpers.php"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Alnaggar\\Turjuman\\TurjumanServiceProvider"
+            ],
+            "aliases": {
+                "Turjuman": "Alnaggar\\Turjuman\\Turjuman"
+            }
+        }
+    },
+    "prefer-stable": true
+}

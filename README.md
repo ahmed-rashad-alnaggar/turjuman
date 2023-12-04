@@ -23,7 +23,7 @@ composer require alnaggar/turjuman
 Next, publish the configuration file:
 
 ```bash
-php artisan vendor:publish --provider="Alnaggar/Turjuman/TurjumanServiceProvider"
+php artisan vendor:publish --provider="Alnaggar\Turjuman\TurjumanServiceProvider"
 ```
 
 Then, register these middlewares in your `App\Http\Kernel` before the `\Illuminate\Routing\Middleware\SubstituteBindings` middleware
@@ -97,7 +97,7 @@ Turjuman::group(function(){
 });
 ```
 
-### URL Generation
+### Localized URL Generation
 
 Generate localized URLs based on configured locales and group attributes.
 
@@ -196,7 +196,7 @@ public function getDetails()
 ```
 
 > [!NOTE]
-> The custom properties must be named using snake_case.
+> The custom properties must be named using **snake_case**.
 
 ### Redirecting Only When Needed
 
@@ -226,7 +226,7 @@ Turjuman::group(function () {
 ]);
 ```
 
-#### `ignore(\Closure|\Illuminate\Routing\Route $routes): void`
+#### `ignore(\Illuminate\Routing\Route|\Closure $routes): void`
 
 Use the `ignore` function within the `group` closure to exclude specific routes from localization. It takes a closure or a single route to ignore.
 
@@ -399,7 +399,7 @@ $currentLocale = Turjuman::getCurrentLocale();
 
 ### URL Localization
 
-#### `getLocalizedUrl(string $url, string $locale = null): ?string`
+#### `getLocalizedUrl(string $url, ?string $locale = null): ?string`
 
 Get the localized URL for the provided URL and locale. Returns `null` if the provided URL is external or not localized.
 
@@ -437,7 +437,7 @@ use \Alnaggar\Turjuman\Turjuman;
 $isLocalizedUrl = Turjuman::isLocalizedUrl('/contact');
 ```
 
-#### `isLocalizedRoute(string|\Illuminate\Routing\Route $route = null): bool`
+#### `isLocalizedRoute(\Illuminate\Routing\Route|string|null $route = null): bool`
 
 Check if the provided route is localized within any of the registered groups. The check is done against the current route if `null` is passed.
 
@@ -487,7 +487,7 @@ use \Alnaggar\Turjuman\Turjuman;
 $isDefault = Turjuman::isDefaultLocale('en');
 ```
 
-### Helpers
+### Miscellaneous
 
 #### `getLocalesByProperty(string $property, mixed $default = null): string`
 
@@ -504,7 +504,7 @@ use \Alnaggar\Turjuman\Turjuman;
 $localesCurrencies = Turjuman::getLocalesByProperty('currency', 'USD');
 ```
 
-#### `getLocalizedPagePath(string $path, string $locale = null): string`
+#### `getLocalizedPagePath(string $path, ?string $locale = null): string`
 
 Get the localized page path for the provided path and locale. It works for Laravel views and [Inertia](https://inertiajs.com/) pages.
 

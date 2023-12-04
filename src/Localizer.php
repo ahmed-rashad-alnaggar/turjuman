@@ -143,10 +143,10 @@ class Localizer
     /**
      * Ignore routes within the current group.
      *
-     * @param \Closure|\Illuminate\Routing\Route $routes The closure or route to be ignored.
+     * @param \Illuminate\Routing\Route|\Closure $routes The closure or route to be ignored.
      * @return void
      */
-    public function ignore(\Closure|Route $routes) : void
+    public function ignore(Route|\Closure $routes) : void
     {
         if ($routes instanceof \Closure) {
             // Store the current routes to calculate the added routes within the closure
@@ -343,7 +343,7 @@ class Localizer
      * @param string|null $locale The locale code to use for localization. Defaults to the current locale.
      * @return string|null The localized URL, or null if the URL is not localized in any registered group.
      */
-    public function getLocalizedUrl(string $url, string $locale = null) : ?string
+    public function getLocalizedUrl(string $url, ?string $locale = null) : ?string
     {
         /** @var \Alnaggar\Turjuman\Group $group */
 
@@ -367,7 +367,7 @@ class Localizer
      * @param string $url The URL to process.
      * @return string|null The non-localized URL, or null if the URL is not associated with any registered route.
      */
-    public function getNonLocalizedUrl(string $url) : string|null
+    public function getNonLocalizedUrl(string $url) : ?string
     {
         if ($route = RouteResolver::getRouteByUrl($url, 'GET')) {
             return $this->groups->first(fn (Group $group) => $group->isLocalizedRoute($route))?->getNonLocalizedUrl($url) ?? $url;
@@ -384,7 +384,7 @@ class Localizer
      * @param string|null $locale The locale code to use for localization. Defaults to the current locale.
      * @return string The localized page path.
      */
-    public function getLocalizedPagePath(string $path, string $locale = null) : string
+    public function getLocalizedPagePath(string $path, ?string $locale = null) : string
     {
         $prefix = ($locale ?? $this->getCurrentLocale()->getCode()) . '/';
 
@@ -406,10 +406,10 @@ class Localizer
     /**
      * Check if the provided route is localized within any of the registered groups.
      *
-     * @param string|\Illuminate\Routing\Route|null $route The route to check. Defaults to the current route.
+     * @param \Illuminate\Routing\Route|string|null $route The route to check. Defaults to the current route.
      * @return bool Whether the route is localized within any group.
      */
-    public function isLocalizedRoute(string|Route $route = null) : bool
+    public function isLocalizedRoute(Route|string|null $route = null) : bool
     {
         return $this->groups->contains(fn (Group $group) => $group->isLocalizedRoute($route ?? $this->router->getCurrentRoute()));
     }

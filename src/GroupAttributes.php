@@ -66,9 +66,9 @@ class GroupAttributes implements \ArrayAccess
     /**
      * Return group display location.
      * 
-     * @return int|string|null
+     * @return string|int|null
      */
-    public function getDisplayLocation() : int|string|null
+    public function getDisplayLocation() : string|int|null
     {
         return $this->propertyBag['display_location'];
     }

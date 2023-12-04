@@ -132,7 +132,7 @@ class Locale implements \ArrayAccess
      * 
      * @return string|null
      */
-    public function getAlias() : string|null
+    public function getAlias() : ?string
     {
         return $this->propertyBag['alias'];
     }

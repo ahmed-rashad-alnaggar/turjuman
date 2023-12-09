@@ -49,28 +49,30 @@ class SetLocale
      */
     protected function determineCurrentLocale(Request $request) : string
     {
-        $supportedLocales = array_keys(Turjuman::getSupportedLocales());
+        // Counter for iteration
+        $i = 0;
 
-        // Try different sources to determine the current locale
-        $currentLocale = $this->extractLocaleFromNonGetRequestInput($request)
-            ?? $this->extractLocaleFromUrl($request)
-            ?? Session::get(Localizer::LOCALE_IDENTIFIER)
-            ?? Cookie::get(Localizer::LOCALE_IDENTIFIER)
-            ?? $this->fetchUserLocale()
-            ?? $request->getPreferredLanguage($supportedLocales)
-            ?? Turjuman::getDefaultLocale()->getCode();
+        // Get locale aliases for quick reference
+        $localeAliases = array_flip(Turjuman::getCurrentAttributes()->getLocaleAliases());
 
-        // Obtain the locale code when an alias is utilized; otherwise, keep the original value.
-        $currentLocale = array_flip(Turjuman::getCurrentAttributes()->getLocalesAliases())[$currentLocale] ?? $currentLocale;
+        // Iterate through potential sources to determine the current locale
+        while (! isset($currentLocale) || ! Turjuman::isSupportedLocale($currentLocale)) {
+            $currentLocale = match (++$i) {
+                1 => $this->extractLocaleFromNonGetRequestInput($request),
+                2 => $this->extractLocaleFromUrl($request),
+                3 => Session::get(Localizer::LOCALE_IDENTIFIER),
+                4 => Cookie::get(Localizer::LOCALE_IDENTIFIER),
+                5 => $this->fetchUserLocale(),
+                6 => $request->getPreferredLanguage($localeAliases),
+                default => Turjuman::getDefaultLocale()->getCode()
+            };
 
-        // Set the current locale to the default one if the determined locale is not supported due to reasons such as user manipulation in form input or URL query.
-        if (! Turjuman::isSupportedLocale($currentLocale)) {
-            $currentLocale = Turjuman::getDefaultLocale()->getCode();
+            // Map the current locale using locale aliases if available
+            $currentLocale = $localeAliases[$currentLocale] ?? $currentLocale;
         }
 
         return $currentLocale;
     }
-
 
     /**
      * Retrieve the locale from non-GET request input based on the display type.

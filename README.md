@@ -14,7 +14,9 @@ Turjuman is a Laravel route localization package designed to simplify the proces
 
 ## Installation
 
-To install Turjuman, you can use Composer:
+Turjuman is compatible with Laravel 10 and above.
+
+Install the package using Composer:
 
 ```bash
 composer require alnaggar/turjuman
@@ -45,6 +47,9 @@ The Configuration file (`config/turjuman.php`) provides flexibility in defining 
 ### Supported Locales
 
 The `supported_locales` key in allows you to specify the locales you want to support. With a vast array of +800 locales available, you can uncomment or add new ones based on your project needs. Each locale can be customized with additional properties such as currency, country, etc., making them accessible through the corresponding `Locale` instance.
+
+[!NOTE]
+Ensure compliance with ISO 15897 for locale codes and language directories, as [recommended](https://laravel.com/docs/10.x/localization#using-short-keys) by Laravel for better experience.
 
 ### Default Locale
 
@@ -196,7 +201,7 @@ public function getDetails()
 ```
 
 > [!NOTE]
-> The custom properties must be named using **snake_case**.
+> The custom properties must be named using ***snake_case***.
 
 ### Redirecting Only When Needed
 

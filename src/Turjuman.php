@@ -5,12 +5,6 @@ namespace Alnaggar\Turjuman;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * Turjuman facade provides a convenient interface for accessing the Localizer functionality.
- *
- * This facade allows you to interact with the Turjuman Localizer using a concise and expressive syntax.
- * It serves as a static proxy to the Localizer class, providing easy access to various methods for
- * URL localization, route grouping, and locale management in a Laravel application.
- *
  * @method static Group group(\Closure $routes, array $attributes = [])
  * @method static void ignore(\Closure|\Illuminate\Routing\Route $routes)
  * @method static Localizer addConfigLocales(array $locales)
@@ -39,7 +33,6 @@ use Illuminate\Support\Facades\Facade;
  * @method static bool hasMacro(string $name)
  * @method static void flushMacros()
  * 
- * @package Alnaggar\Turjuman
  * @see \Alnaggar\Turjuman\Localizer
  */
 class Turjuman extends Facade

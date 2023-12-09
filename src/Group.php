@@ -155,7 +155,7 @@ class Group
     public function getLocalizedUrl(string $url, string $locale) : string
     {
         // Get the alias for the specified locale
-        $alias = $this->attributes->getLocalesAliases()[$locale];
+        $alias = $this->attributes->getLocaleAliases()[$locale];
 
         // Check if the default locale is set to be hidden and matches the provided locale
         $shouldHideLocale = $this->attributes->isHideDefault() && $this->attributes->getDefaultLocale()->getCode() === $locale;
@@ -167,10 +167,8 @@ class Group
 
         // Extract route, parameters, and queries from the provided URL
         $route = RouteResolver::getRouteByUrl($url, 'GET');
-        [$parameters, $queries] = [
-            UrlProcessor::extractParameters($route, $url),
-            UrlProcessor::extractQueries($url)
-        ];
+        $parameters = UrlProcessor::extractParameters($route, $url);
+        $queries = UrlProcessor::extractQueries($url);
 
         // Handle URL construction based on display type
         if ($this->attributes->isLocaleDisplayTypeSegment()) {
@@ -203,10 +201,8 @@ class Group
     {
         // Extract route, parameters, and queries from the provided URL
         $route = RouteResolver::getRouteByUrl($url, 'GET');
-        [$parameters, $queries] = [
-            UrlProcessor::extractParameters($route, $url),
-            UrlProcessor::extractQueries($url)
-        ];
+        $parameters = UrlProcessor::extractParameters($route, $url);
+        $queries = UrlProcessor::extractQueries($url);
 
         // Check if the route is localized within the current group.
         // If the route is not localized within the group, return the URL without modifying its parameters or queries.
@@ -276,7 +272,7 @@ class Group
     protected function createLocalizedGetRoutes(Route $source) : void
     {
         // Retrieve locale aliases, route aliases, and display location from group attributes
-        $localesAliases = $this->attributes->getLocalesAliases();
+        $localeAliases = $this->attributes->getLocaleAliases();
         $routesAliases = $this->attributes->getRoutesAliases();
         $segmentIndex = $this->attributes->getDisplayLocation();
 
@@ -288,7 +284,7 @@ class Group
         $locales = [];
 
         // Iterate through supported locales and generate localized routes
-        foreach ($localesAliases as $code => $alias) {
+        foreach ($localeAliases as $code => $alias) {
             // Get the localized URI based on route aliases
             $localizedUri = $routesAliases[$code][$source->getDomain() . $sourceUri] ?? $sourceUri;
 
@@ -367,7 +363,8 @@ class Group
         }
     }
 
-    /* Creates a localized GET route based on the source route and the localized URI.
+    /**
+     * Creates a localized GET route based on the source route and the localized URI.
      *
      * @param \Illuminate\Routing\Route $source
      * @param string $localizedUri

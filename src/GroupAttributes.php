@@ -18,11 +18,11 @@ class GroupAttributes implements \ArrayAccess
     use Extensible;
 
     /**
-     * Locales Aliases.
+     * Locale Aliases.
      * 
      * @var array<string, string>
      */
-    protected $localesAliases;
+    protected $localeAliases;
 
     /**
      * Creates a new GroupAttributes instance.
@@ -106,9 +106,9 @@ class GroupAttributes implements \ArrayAccess
      * 
      * @return array<string, string>
      */
-    public function getLocalesAliases() : array
+    public function getLocaleAliases() : array
     {
-        return $this->localesAliases ??=
+        return $this->localeAliases ??=
             $this->getLocalesByProperty('alias', fn (Locale $locale) => $locale->getCode());
     }
 

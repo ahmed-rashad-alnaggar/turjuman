@@ -1,6 +1,6 @@
 {
     "name": "alnaggar/turjuman",
-    "description": "Laravel package for route localization",
+    "description": "Laravel package for route localization.",
     "keywords": [
         "laravel",
         "route",
@@ -10,13 +10,11 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "أحمد رشاد النجار",
+            "name": "أحمد محمد رشاد",
             "email": "ahmed.rashad.alnaggar@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
     "require": {
-        "php": "^8.1.0",
         "laravel/framework": "^10.0"
     },
     "autoload": {
@@ -37,5 +35,6 @@
             }
         }
     },
+    "minimum-stability": "dev",
     "prefer-stable": true
 }

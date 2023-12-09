@@ -48,8 +48,8 @@ The Configuration file (`config/turjuman.php`) provides flexibility in defining 
 
 The `supported_locales` key in allows you to specify the locales you want to support. With a vast array of +800 locales available, you can uncomment or add new ones based on your project needs. Each locale can be customized with additional properties such as currency, country, etc., making them accessible through the corresponding `Locale` instance.
 
-[!NOTE]
-Ensure compliance with ISO 15897 for locale codes and language directories, as [recommended](https://laravel.com/docs/10.x/localization#using-short-keys) by Laravel for better experience.
+> [!NOTE]
+> Ensure compliance with ISO 15897 for locale codes and language directories, as [recommended](https://laravel.com/docs/10.x/localization#using-short-keys) by Laravel for better experience.
 
 ### Default Locale
 

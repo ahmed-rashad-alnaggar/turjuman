@@ -6,11 +6,9 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
 
 /**
- * Extensible trait provides extensible behavior for classes implementing ArrayAccess.
+ * Trait Extensible
  *
- * This trait allows objects to be extended in terms of ArrayAccess, enabling changes
- * to the underlying data. It provides a container for properties in the form of a property
- * bag, accessible through ArrayAccess methods in a case-sensitive manner.
+ * This trait allows objects to be extended in terms of ArrayAccess, enabling changes to the underlying data. It provides a container for properties in the form of a property bag, accessible through ArrayAccess methods in a case-sensitive manner.
  *
  * Features:
  * - Property bags for key-value pairs representing object properties.
@@ -20,7 +18,7 @@ use Illuminate\Support\Traits\Macroable;
  * - Dynamic method calls through __call for case-insensitive get method invocation.
  * - Utilizes the Macroable trait for dynamic addition of macros.
  *
- * @package Alnaggar\Turjuman\Traits
+ * @package Alnaggar\Turjuman
  */
 trait Extensible
 {
@@ -42,12 +40,23 @@ trait Extensible
      * Array containing the names of properties that are considered immutable.
      *
      * This array stores the names of properties for which modifications are restricted.
-     * When attempting to set or unset values for properties listed in this array,
+     * When attempting to set or unset values for properties listed in this array, 
      * a \LogicException will be thrown to indicate that the property is immutable.
      *
      * @var array<string>
      */
     protected $immutableBag = [];
+
+    /**
+     * Checks if a given property is marked as immutable.
+     * 
+     * @param string $property
+     * @return bool
+     */
+    public function isImmutable(string $property) : bool
+    {
+        return in_array($property, $this->immutableBag);
+    }
 
     /**
      * Check if the specified offset exists.
@@ -65,8 +74,7 @@ trait Extensible
      *
      * This method attempts to map properties using get methods in a case-insensitive manner.
      * If a corresponding get method exists for the specified offset, it is called to retrieve the value.
-     * If no get method is found, the property is directly retrieved from the underlying array,
-     * and null is returned if the property does not exist.
+     * If no get method is found, the property is directly retrieved from the underlying array, and null is returned if the property does not exist.
      *
      * @param string $offset
      * @return mixed
@@ -175,18 +183,7 @@ trait Extensible
     protected function throwIfImmutable(string $property) : void
     {
         if ($this->isImmutable($property)) {
-            throw new \LogicException(sprintf('%s %s property is immutable.', static::class, $property));
+            throw new \LogicException(sprintf('The property %s of %s class is immutable.', $property, static::class));
         }
-    }
-
-    /**
-     * Checks if a given property is marked as immutable.
-     * 
-     * @param string $property
-     * @return bool
-     */
-    protected function isImmutable(string $property) : bool
-    {
-        return in_array($property, $this->immutableBag);
     }
 }

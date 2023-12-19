@@ -10,13 +10,10 @@ use Alnaggar\Turjuman\Locale;
 /**
  * Class DefaultLocaleNormalizer
  *
- * Group attribute normalizer responsible for setting the default locale based on configuration values.
  * This class implements the GroupAttributeNormalizerInterface and provides a method to normalize the default locale.
- * If the 'default_locale' attribute is missing in the provided attributes, it falls back to the default locale
- * specified in the fallback attributes. The normalized locale is then validated against the 'supported_locales'
- * attribute, and an exception is thrown if the default locale is not supported.
+ * If the 'default_locale' attribute is missing in the provided attributes, it falls back to the default locale specified in the fallback attributes. The normalized locale is then validated against the 'supported_locales' attribute, and an exception is thrown if the default locale is not supported.
  *
- * @package Alnaggar\Turjuman\Normalizers
+ * @package Alnaggar\Turjuman
  */
 class DefaultLocaleNormalizer implements GroupAttributeNormalizerInterface
 {
@@ -32,9 +29,11 @@ class DefaultLocaleNormalizer implements GroupAttributeNormalizerInterface
      */
     public static function normalize(array $attributes, ?GroupAttributes $fallbackAttributes) : Locale
     {
-        $code = $attributes['default_locale'] ?? $fallbackAttributes->getDefaultLocale()->getCode();
+        /** @var \Alnaggar\Turjuman\Locale|string */
+        $locale = $attributes['default_locale'] ?? $fallbackAttributes->getDefaultLocale();
+        $code = $locale instanceof Locale ? $locale->getCode() : $locale;
 
-        if (! isset($attributes['supported_locales'][$code])) {
+        if (! array_key_exists($code, $attributes['supported_locales'])) {
             throw UnsupportedLocaleException::unsupportedDefaultLocale($code);
         }
 

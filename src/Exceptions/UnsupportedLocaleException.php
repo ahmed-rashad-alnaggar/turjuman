@@ -5,11 +5,9 @@ namespace Alnaggar\Turjuman\Exceptions;
 /**
  * Class UnsupportedLocaleException
  *
- * Exception class for handling unsupported locale scenarios in Turjuman.
- * This class extends \DomainException to provide a specific type of exception
- * for scenarios related to unsupported locales within the Turjuman package.
+ * This class extends \DomainException to provide a specific type of exception for scenarios related to unsupported locales within the Turjuman package.
  *
- * @package Alnaggar\Turjuman\Exceptions
+ * @package Alnaggar\Turjuman
  */
 class UnsupportedLocaleException extends \DomainException
 {

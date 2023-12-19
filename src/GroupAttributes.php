@@ -6,10 +6,9 @@ use Alnaggar\Turjuman\Normalizers\GroupAttributesNormalizer;
 use Alnaggar\Turjuman\Traits\Extensible;
 
 /**
- * GroupAttributes class represents the attributes configuration for route groups in Turjuman.
- *
- * This class encapsulates the configuration attributes for route groups, providing a normalized
- * and extensible way to access and manage these attributes by utilizing the Extensible trait.
+ * Class GroupAttributes
+ * 
+ * This class encapsulates the configuration attributes for localized route groups, providing a normalized and extensible way to access and manage these attributes by utilizing the Extensible trait.
  *
  * @package Alnaggar\Turjuman
  */
@@ -28,10 +27,8 @@ class GroupAttributes implements \ArrayAccess
      * Creates a new GroupAttributes instance.
      *
      * @param array<string, mixed> $attributes An associative array of attribute/value pairs.
-     * The array must include essential attributes which are
-     * ['supported_locales', 'default_locale', 'display_location', 'hide_default', 'routes_aliases'].
-     * Any additional entries will be treated as extra attributes like [name, region],
-     * accessible via the Extensible trait access methods.
+     * The array must include essential attributes which are ['supported_locales', 'default_locale', 'display_location', 'hide_default', 'route_aliases'].
+     * Any additional entries will be treated as extra attributes like [name, region], accessible via the Extensible trait access methods.
      * @param \Alnaggar\Turjuman\GroupAttributes|null $fallbackAttributes The system will fallback to these attributes to determine missing ones.
      * If $fallbackAttributes is null, this instance will be treated as the configuration one.
      * @return void
@@ -40,7 +37,7 @@ class GroupAttributes implements \ArrayAccess
     {
         $this->propertyBag = GroupAttributesNormalizer::normalize($attributes, $fallbackAttributes);
 
-        $this->immutableBag = ['supported_locales', 'default_locale', 'display_location', 'hide_default', 'routes_aliases'];
+        $this->immutableBag = ['supported_locales', 'default_locale', 'display_location', 'hide_default', 'route_aliases', 'locale_identifier'];
     }
 
     /**
@@ -74,13 +71,23 @@ class GroupAttributes implements \ArrayAccess
     }
 
     /**
-     * Return group routes aliases.
+     * Return group route aliases.
      * 
      * @return array<string, array<string, string>>
      */
-    public function getRoutesAliases() : array
+    public function getRouteAliases() : array
     {
-        return $this->propertyBag['routes_aliases'];
+        return $this->propertyBag['route_aliases'];
+    }
+
+    /**
+     * Return group locale identifier.
+     * 
+     * @return string
+     */
+    public function getLocaleIdentifier() : string
+    {
+        return $this->propertyBag['locale_identifier'];
     }
 
     /**
@@ -101,7 +108,7 @@ class GroupAttributes implements \ArrayAccess
     }
 
     /**
-     * Return locales aliases.
+     * Return locale aliases.
      * If locale does not have an alias its code is return instead.
      * 
      * @return array<string, string>
@@ -135,8 +142,7 @@ class GroupAttributes implements \ArrayAccess
     /**
      * Determine if the locale display type in the URL is set to segment.
      *
-     * This function returns true if the locale display type is set to segment,
-     * allowing different behavior in handling localized URLs based on segments.
+     * This function returns true if the locale display type is set to segment, allowing different behavior in handling localized URLs based on segments.
      *
      * @return bool True if the locale display type is set to segment; otherwise, false.
      */
@@ -149,8 +155,7 @@ class GroupAttributes implements \ArrayAccess
     /**
      * Determine if the locale display type in the URL is set to query parameter.
      *
-     * This function returns true if the locale display type is set to query parameter,
-     * allowing different behavior in handling localized URLs based on query parameters.
+     * This function returns true if the locale display type is set to query parameter, allowing different behavior in handling localized URLs based on query parameters.
      *
      * @return bool True if the locale display type is set to query parameter; otherwise, false.
      */
@@ -162,8 +167,7 @@ class GroupAttributes implements \ArrayAccess
     /**
      * Determine if the locale display type in the URL is set to hidden.
      *
-     * This function returns true if the locale display type is set to hidden,
-     * indicating that no explicit display method (segment or query) is used.
+     * This function returns true if the locale display type is set to hidden, indicating that no explicit display method (segment or query) is used.
      *
      * @return bool True if the locale display type is set to hidden; otherwise, false.
      */

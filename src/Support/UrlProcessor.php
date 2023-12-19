@@ -3,14 +3,14 @@
 namespace Alnaggar\Turjuman\Support;
 
 use Illuminate\Routing\Route;
+use Illuminate\Support\Arr;
 
 /**
  * Class UrlProcessor
  *
- * The UrlProcessor class provides methods for processing URLs and routes, including extracting parameters,
- * adding segments to the path, and extracting query parameters.
+ * The UrlProcessor class provides methods for processing URLs and routes, including extracting parameters, adding segments to the path, and extracting query parameters.
  *
- * @package Alnaggar\Turjuman\Support
+ * @package Alnaggar\Turjuman
  */
 class UrlProcessor
 {
@@ -26,7 +26,7 @@ class UrlProcessor
         // Combine path and host parameters, then replace defaults.
         $parameters = self::extractPathParameters($route, $url);
 
-        if ($route->compiled->getHostRegex()) {
+        if ($route->getCompiled()->getHostRegex()) {
             $parameters = array_merge($parameters, self::extractHostParameters($route, $url));
         }
 
@@ -41,8 +41,14 @@ class UrlProcessor
      */
     public static function extractQueries(string $url) : array
     {
-        // Use parse_url to extract query parameters and parse_str to convert them into an associative array.
-        parse_str(parse_url($url, PHP_URL_QUERY) ?: '', $queries);
+        // Extract query string.
+        $queryString = parse_url($url, PHP_URL_QUERY);
+
+        // Decode query string if it exists.
+        $queryString = html_entity_decode($queryString ?: '');
+
+        // Use parse_str to convert query string into an associative array.
+        parse_str($queryString, $queries);
 
         return $queries;
     }
@@ -73,7 +79,7 @@ class UrlProcessor
     protected static function extractPathParameters(Route $route, string $url)
     {
         // Decode the raw URL and extract the path.
-        $path = '/' . ltrim(rawurldecode(parse_url($url, PHP_URL_PATH) ?: ''), '/');
+        $path = '/' . ltrim(rawurldecode(parse_url($url, PHP_URL_PATH) ?? ''), '/');
 
         // Use regex to match the path against the compiled regex of the route.
         preg_match($route->compiled->getRegex(), $path, $matches);
@@ -92,7 +98,7 @@ class UrlProcessor
     protected static function extractHostParameters(Route $route, string $url) : array
     {
         // Extract the host from the URL.
-        $host = parse_url($url, PHP_URL_HOST) ?: '';
+        $host = parse_url($url, PHP_URL_HOST) ?? '';
 
         // Use regex to match the host against the compiled host regex of the route.
         preg_match($route->compiled->getHostRegex(), $host, $matches);
@@ -133,6 +139,10 @@ class UrlProcessor
      */
     protected static function replaceDefaults(Route $route, array $parameters) : array
     {
+        foreach ($parameters as $key => $value) {
+            $parameters[$key] = $value ?? Arr::get($route->defaults, $key);
+        }
+
         // Replace null parameters with their default values from the route.
         foreach ($route->defaults as $key => $value) {
             if (! isset($parameters[$key])) {

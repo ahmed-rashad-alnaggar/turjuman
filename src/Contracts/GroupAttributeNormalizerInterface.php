@@ -7,11 +7,9 @@ use Alnaggar\Turjuman\GroupAttributes;
 /**
  * Interface GroupAttributeNormalizerInterface
  *
- * Interface for normalizing group attributes in Turjuman.
- * This interface defines a method to normalize group attributes, allowing
- * for customization and handling of different attribute types and structures.
+ * This interface defines a method to normalize group attributes, allowing for customization and handling of different attribute types and structures.
  *
- * @package Alnaggar\Turjuman\Contracts
+ * @package Alnaggar\Turjuman
  */
 interface GroupAttributeNormalizerInterface
 {

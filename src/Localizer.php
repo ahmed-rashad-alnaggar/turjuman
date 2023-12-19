@@ -21,13 +21,6 @@ class Localizer
     use Macroable;
 
     /**
-     * The locale identifier used in url, session, cookies and form input to identify the locale.
-     * 
-     * @var string
-     */
-    public const LOCALE_IDENTIFIER = '_locale';
-
-    /**
      * The instance of the Laravel application.
      *
      * @var \Illuminate\Foundation\Application
@@ -208,6 +201,7 @@ class Localizer
      */
     public function setConfigAttributes(GroupAttributes $attributes) : static
     {
+        $this->config->set('turjuman', $attributes->getAllAttributes());
         $this->configAttributes = $attributes;
 
         return $this;
@@ -235,8 +229,8 @@ class Localizer
         $this->app->setFallbackLocale($this->getDefaultLocale()->getCode());
 
         // Store the current locale in the session and as a cookie
-        $this->session->put(self::LOCALE_IDENTIFIER, $locale);
-        $this->cookies->queue($this->cookies->forever(self::LOCALE_IDENTIFIER, $locale));
+        $this->session->put($this->getCurrentAttributes()->getLocaleIdentifier(), $locale);
+        $this->cookies->queue($this->cookies->forever($this->getCurrentAttributes()->getLocaleIdentifier(), $locale));
 
         // Set the locale for LC_TIME and LC_MONETARY
         setlocale(LC_TIME, $currentLocale->getRegional());
@@ -341,7 +335,7 @@ class Localizer
      *
      * @param string $url The URL to localize.
      * @param string|null $locale The locale code to use for localization. Defaults to the current locale.
-     * @return string|null The localized URL, or null if the URL is not localized in any registered group.
+     * @return string|null The localized URL (decoded), or null if the URL is not localized in any registered group.
      */
     public function getLocalizedUrl(string $url, ?string $locale = null) : ?string
     {
@@ -365,7 +359,7 @@ class Localizer
      * Get the non-localized URL for the provided URL.
      *
      * @param string $url The URL to process.
-     * @return string|null The non-localized URL, or null if the URL is not associated with any registered route.
+     * @return string|null The non-localized URL (decoded), or null if the URL is not associated with any registered route.
      */
     public function getNonLocalizedUrl(string $url) : ?string
     {

@@ -4,6 +4,9 @@ namespace Alnaggar\Turjuman;
 
 use Illuminate\Support\ServiceProvider;
 
+/**
+ * @package Alnaggar\Turjuman
+ */
 class TurjumanServiceProvider extends ServiceProvider
 {
     /**
@@ -20,9 +23,10 @@ class TurjumanServiceProvider extends ServiceProvider
      */
     public function register() : void
     {
+        // Merge the package configuration file into the application configuration
         $this->mergeConfigFrom(self::CONFIG_PATH, 'turjuman');
 
-        // Bind Localizer as a singleton and create an alias
+        // Bind Localizer as a singleton and create an alias 'turjuman' for convenient access
         $this->app->singleton(Localizer::class);
         $this->app->alias(Localizer::class, 'turjuman');
     }
@@ -34,6 +38,13 @@ class TurjumanServiceProvider extends ServiceProvider
      */
     public function boot() : void
     {
+        if ($this->app->runningInConsole()) {
+            // Register the CreateMiddlewareCommand for artisan commands
+            $this->commands([
+                Console\CreateMiddlewareCommand::class
+            ]);
+        }
+
         // Register the package publishable resources.
         $this->publishes([
             self::CONFIG_PATH => config_path('turjuman.php')

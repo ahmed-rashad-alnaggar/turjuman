@@ -1,5 +1,9 @@
 # Turjuman - Laravel Route Localization Package
 
+![I Stand With Palestine Badge](./images/PalestineBadge.svg)
+
+![I Stand With Palestine Banner](./images/PalestineBanner.svg)
+
 Turjuman is a Laravel route localization package designed to simplify the process of generating localized routes effortlessly. The name "turjuman" is derived from the Arabic word **تُرجُمان**, meaning the person who translates or localizes. This term holds historical significance as it was the name of one of  [alsahaba](https://en.wikipedia.org/wiki/Companions_of_the_Prophet) (companions) of the [Prophet Muhammad](https://en.wikipedia.org/wiki/Muhammad) may Allah bless him and grant him peace, Abdullah bin Abbas. He earned the title of "turjuman" (the interpreter) of the holy [Qur’an](https://en.wikipedia.org/wiki/Quran) due to his renowned skills in interpreting the holy Qur’an, despite being one of the youngest companions.
 
 ## Table of Contents
@@ -10,6 +14,7 @@ Turjuman is a Laravel route localization package designed to simplify the proces
 - [Features](#features)
 - [Usage](#usage)
 - [Contributing](#contributing)
+- [Credits](#credits)
 - [License](#license)
 
 ## Installation
@@ -28,7 +33,7 @@ Next, publish the configuration file:
 php artisan vendor:publish --provider="Alnaggar\Turjuman\TurjumanServiceProvider"
 ```
 
-Then, register these middlewares in your `App\Http\Kernel` before the `\Illuminate\Routing\Middleware\SubstituteBindings` middleware
+Then, register these middlewares in your `app/http/kernel.php` before the `\Illuminate\Routing\Middleware\SubstituteBindings` middleware
 
 ```php
  'web' => [
@@ -42,7 +47,7 @@ Then, register these middlewares in your `App\Http\Kernel` before the `\Illumina
 
 ## Configuration
 
-The Configuration file (`config/turjuman.php`) provides flexibility in defining supported locales, default locale, display options, hiding the default locale, and route aliases.
+The Configuration file (`config/turjuman.php`) provides flexibility in defining supported locales, default locale, display options, hiding the default locale, route aliases, and locale identifier.
 
 ### Supported Locales
 
@@ -63,9 +68,13 @@ The `display_location` key controls how the locale is displayed in the URL. It c
 
 The `hide_default` key, when set to true, determines whether to display the default locale in the URL if it's displayable.
 
-### Routes Aliases
+### Route Aliases
 
-The `routes_aliases` key allows you to translate specific URLs in different locales. For instance, you can provide translations for URLs by adding them under the corresponding locale keys.
+The `route_aliases` key allows you to translate specific URLs in different locales. For instance, you can provide custom slugs and/or domains for URLs by adding them under the corresponding locale keys.
+
+### Locale Identifier
+
+The `locale_identifier` key allows you to set the locale token name used in url parameters, session, cookies and form input to identify the current locale.
 
 ## Middlewares
 
@@ -73,7 +82,13 @@ The `routes_aliases` key allows you to translate specific URLs in different loca
 
 This middleware is responsible for setting the current locale based on various sources in a predefined order, such as request input, URL, session, cookies, browser languages, and user preferences to determine the current locale.
 
-This middleware includes a function `fetchUserLocale(): ?string` that you can override. This function allows you to retrieve the user's preferred locale from the database or any other source if it is not determined in the predefined sources.
+In addition to this, you have the option to publish a middleware named `TurjumanSetLocale` using the artisan command:
+
+```bash
+php artisan turjuman:middleware
+```
+
+By doing so, you can effortlessly override the `fetchUserLocale(): ?string` function within this middleware. This function allows you to retrieve the user's preferred locale from the database or any other source if it is not determined in the predefined sources. After publishing, replace the existing `\Alnaggar\Turjuman\Middleware\SetLocale::class` middleware in your `app/http/kernel.php` with `\App\Http\Middleware\TurjumanSetLocale::class` middleware. This provides a convenient way to customize how the user's preferred locale is fetched, allowing you to adapt it according to your specific requirements.
 
 ### `LocalizeRoutes.php` Middleware
 
@@ -102,6 +117,22 @@ Turjuman::group(function(){
 });
 ```
 
+### Locale Aliases
+
+You can define an alias for the locale to appear in the url in the configuration of the locale instead of the locale code.
+
+```php
+// confing/turjuman.php
+
+'supported_locales' => [
+    'ar' => ['name' => 'Arabic', 'native' => 'العربية', 'script' => 'Arab', 'alias' => 'العربية'],
+    'en' => ['name' => 'English', 'native' => 'English', 'script' => 'Latn', 'alias' => 'English'],
+    'fr' => ['name' => 'French', 'native' => 'français', 'script' => 'Latn'], // no alias.
+
+    // ...
+],
+```
+
 ### Localized URL Generation
 
 Generate localized URLs based on configured locales and group attributes.
@@ -112,7 +143,7 @@ use Alnaggar\Turjuman\Turjuman;
 Turjuman::group(function () {
     // Define your localized routes here
 }, [
-    'routes_aliases' => [
+    'route_aliases' => [
         'fr' => [
             '/products' => '/produits'
         ]
@@ -536,6 +567,10 @@ $url = turjuman('/about', 'ar');
 ## Contributing
 
 If you find any issues or have suggestions for improvements, feel free to open an issue or submit a pull request on the GitHub repository.
+
+## Credits
+
+- Palestine banner and badge by [Safouene1](https://github.com/Safouene1/support-palestine-banner).
 
 ## License
 

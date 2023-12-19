@@ -5,10 +5,9 @@ namespace Alnaggar\Turjuman;
 use Alnaggar\Turjuman\Traits\Extensible;
 
 /**
- * Locale class represents a language locale in Turjuman.
+ * class Locale
  *
- * This class encapsulates the properties of a language locale, providing a normalized
- * and extensible way to access and manage these properties by utilizing the Extensible trait.
+ * This class encapsulates the properties of a language locale, providing a normalized and extensible way to access and manage these properties by utilizing the Extensible trait.
  *
  * @property string $code
  * @property string $name
@@ -29,8 +28,7 @@ class Locale implements \ArrayAccess
      * 
      * @param array<string, mixed> $properties Associative array of property/value pairs.
      * The array must include essential properties which are [code, name, native, script].
-     * Any additional entries will be treated as extra properties like [direction, native_speakers],
-     * accessible via the Extensible trait access methods.
+     * Any additional entries will be treated as extra properties like [direction, native_speakers], accessible via the Extensible trait access methods.
      * 
      * @return void
      */

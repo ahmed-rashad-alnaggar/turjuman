@@ -6,16 +6,12 @@ use Alnaggar\Turjuman\Support\RouteResolver;
 use Alnaggar\Turjuman\Support\UrlProcessor;
 use Illuminate\Foundation\Application;
 use Illuminate\Routing\Route;
-use Illuminate\Support\Arr;
 
 /**
- * Group class represents a grouping of routes with localization capabilities.
+ * class Group
  *
  * This class is responsible for managing a group of routes and handling localization features.
- * It allows the setting of group attributes, associating routes with the group, and generating
- * localized URLs based on the specified locale and group configuration. The class also provides
- * methods to determine if a route is localized within the group and to create localized routes
- * based on a source route.
+ * It allows the setting of group attributes, associating routes with the group, and generating localized URLs based on the specified locale and group configuration. The class also provides methods to determine if a route is localized within the group and to create localized routes based on a source route.
  *
  * @package Alnaggar\Turjuman
  */
@@ -145,12 +141,11 @@ class Group
      * Generate a localized URL based on the provided URL and locale.
      *
      * This function constructs a URL with the specified locale, considering display types and settings.
-     * If the default locale is set to be hidden and matches the provided locale, a non-localized URL is returned.
-     * Otherwise, the URL is generated based on the provided locale and display type.
+     * If the default locale is set to be hidden and matches the provided locale, a non-localized URL is returned. Otherwise, the URL is generated based on the provided locale and display type.
      *
      * @param string $url The original URL.
      * @param string $locale The desired locale.
-     * @return string The generated localized URL.
+     * @return string The generated localized decoded URL.
      */
     public function getLocalizedUrl(string $url, string $locale) : string
     {
@@ -174,28 +169,30 @@ class Group
         if ($this->attributes->isLocaleDisplayTypeSegment()) {
             $route = $this->reverseMap[$route->getDomain() . $route->uri()] ?? $route;
             $route = $this->map[$route->getDomain() . $route->uri()][$locale];
-            Arr::forget($parameters, Localizer::LOCALE_IDENTIFIER);
 
             // Add locale identifier to parameters if it exists in route wheres
-            if (array_key_exists(Localizer::LOCALE_IDENTIFIER, $route->wheres)) {
-                $parameters = array_merge($parameters, [Localizer::LOCALE_IDENTIFIER => $alias]);
+            if (array_key_exists($this->attributes->getLocaleIdentifier(), $route->wheres)) {
+                $parameters[$this->attributes->getLocaleIdentifier()] = $alias;
+            } else {
+                // Omit the locale identifier parameter (if exists) as the localized route is a custom one (named, aliased).
+                unset($parameters[$this->attributes->getLocaleIdentifier()]);
             }
         } elseif ($this->attributes->isLocaleDisplayTypeQuery()) {
-            $queries = array_merge($queries, [$this->attributes->getDisplayLocation() => $alias]);
+            $queries[$this->attributes->getDisplayLocation()] = $alias;
         } else {
             $route = $this->reverseMap[$route->getDomain() . $route->uri()] ?? $route;
             $route = $this->map[$route->getDomain() . $route->uri()][$locale] ?? $route;
         }
 
         // Construct the localized URL using the adjusted parameters and queries
-        return urldecode($this->urlGenerator->toRoute($route, $parameters + $queries, true));
+        return rawurldecode($this->urlGenerator->toRoute($route, $parameters + $queries, true));
     }
 
     /**
      * Generate the non-localized URL for the given URL, handling localization attributes if applicable.
      *
      * @param string $url The URL for which to generate the non-localized version.
-     * @return string The non-localized URL.
+     * @return string The non-localized decoded URL.
      */
     public function getNonLocalizedUrl(string $url) : string
     {
@@ -209,18 +206,18 @@ class Group
         if ($this->isLocalizedRoute($route)) {
             // Adjust parameters and queries based on the display type specified in group attributes
             if ($this->attributes->isLocaleDisplayTypeQuery()) {
-                Arr::forget($queries, $this->attributes->getDisplayLocation());
+                unset($queries[$this->attributes->getDisplayLocation()]);
             } else {
                 $route = $this->reverseMap[$route->getDomain() . $route->uri()] ?? $route;
 
                 if ($this->attributes->isLocaleDisplayTypeSegment()) {
-                    Arr::forget($parameters, Localizer::LOCALE_IDENTIFIER);
+                    unset($parameters[$this->attributes->getLocaleIdentifier()]);
                 }
             }
         }
 
         // Construct the non-localized URL using the adjusted parameters and queries
-        return urldecode($this->urlGenerator->toRoute($route, $parameters + $queries, true));
+        return rawurldecode($this->urlGenerator->toRoute($route, $parameters + $queries, true));
     }
 
     /**
@@ -273,32 +270,38 @@ class Group
     {
         // Retrieve locale aliases, route aliases, and display location from group attributes
         $localeAliases = $this->attributes->getLocaleAliases();
-        $routesAliases = $this->attributes->getRoutesAliases();
+        $routeAliases = $this->attributes->getRouteAliases();
         $segmentIndex = $this->attributes->getDisplayLocation();
 
-        // Get the URI of the source route and check if it is named
+        // Extract source information: URI, domain, and whether it has a name.
         $sourceUri = $source->uri();
+        $sourceDomain = $source->getDomain();
         $isNamed = ! is_null($source->getName());
+
+        // Get the trimmed source uri as the route aliases keys are trimmed.
+        $trimmedSourceUri = trim($sourceUri, '/');
 
         // Initialize an array to store locales that do not have an alias for this route.
         $locales = [];
 
         // Iterate through supported locales and generate localized routes
         foreach ($localeAliases as $code => $alias) {
-            // Get the localized URI based on route aliases
-            $localizedUri = $routesAliases[$code][$source->getDomain() . $sourceUri] ?? $sourceUri;
+            // Get the localized URI and domain based on route aliases
+            $localizedUri = $routeAliases[$code][$sourceDomain . $trimmedSourceUri]['url'] ?? $sourceUri;
+            if (is_array($routeAliases[$code] ?? [])) {
+                $localizedDomain = $routeAliases[$code][$sourceDomain . $trimmedSourceUri]['domain'] ?? $sourceDomain;
+            } else {
+                $localizedDomain = $routeAliases[$code];
+            }
 
-            // Check if the source route is named or if the localized URI differs
-            // If either condition is met, create a custom route for this locale
-            if ($isNamed || $localizedUri !== $sourceUri) {
+            // Check if the source route is named or if the localized URI or domain differs from the source ones
+            // If one of the conditions is met, create a custom route for this locale
+            if ($isNamed || $sourceUri !== $localizedUri || $sourceDomain !== $localizedDomain) {
                 // Add the locale alias to the localized URI at the specified segment index
                 $localizedUri = UrlProcessor::addSegmentToPath($localizedUri, $alias, $segmentIndex);
 
-                // Create the localized route using the modified URI
-                $localizedRoute = $this->createLocalizedGetRoute($source, $localizedUri);
-
-                // Conditionally set the route name if it is named
-                $localizedRoute = $isNamed ? $localizedRoute->name(".$code") : $localizedRoute;
+                // Create the localized route using the modified settings
+                $localizedRoute = $this->createLocalizedGetRoute($source, $localizedUri, $localizedDomain, $isNamed ? ".$code" : null);
 
                 // Add the localized route to the lookup maps
                 $this->addLookups($source, $localizedRoute, [$code]);
@@ -313,10 +316,10 @@ class Group
         // create a route with a placeholder segment for them.
         if ($locales) {
             // Add a placeholder segment for the locale to the source URI
-            $localizedUri = UrlProcessor::addSegmentToPath($sourceUri, '{' . Localizer::LOCALE_IDENTIFIER . '}', $segmentIndex);
+            $localizedUri = UrlProcessor::addSegmentToPath($sourceUri, '{' . $this->attributes->getLocaleIdentifier() . '}', $segmentIndex);
 
             // Create a localized route with the placeholder segment and restrict to specified locales
-            $localizedRoute = $this->createLocalizedGetRoute($source, $localizedUri)->whereIn(Localizer::LOCALE_IDENTIFIER, $locales);
+            $localizedRoute = $this->createLocalizedGetRoute($source, $localizedUri, null, null)->whereIn($this->attributes->getLocaleIdentifier(), $locales);
 
             // Add the localized route to the lookup maps
             $this->addLookups($source, $localizedRoute, array_keys($locales));
@@ -338,24 +341,31 @@ class Group
     {
         // Retrieve supported locales and route aliases from group attributes
         $supportedLocales = array_keys($this->attributes->getSupportedLocales());
-        $routesAliases = $this->attributes->getRoutesAliases();
+        $routeAliases = $this->attributes->getRouteAliases();
 
-        // Get the URI of the source route and check if it is named
+        // Extract source information: URI, domain, and whether it has a name.
         $sourceUri = $source->uri();
+        $sourceDomain = $source->getDomain();
         $isNamed = ! is_null($source->getName());
+
+        // Get the trimmed source uri as the route aliases keys are trimmed.
+        $trimmedSourceUri = trim($sourceUri, '/');
 
         // Iterate through supported locales and generate localized routes
         foreach ($supportedLocales as $code) {
-            // Get the localized URI based on route aliases
-            $localizedUri = $routesAliases[$code][$source->getDomain() . $sourceUri] ?? $sourceUri;
+            // Get the localized URI and domain based on route aliases
+            $localizedUri = $routeAliases[$code][$sourceDomain . $trimmedSourceUri]['url'] ?? $sourceUri;
+            if (is_array($routeAliases[$code] ?? [])) {
+                $localizedDomain = $routeAliases[$code][$sourceDomain . $trimmedSourceUri]['domain'] ?? $sourceDomain;
+            } else {
+                $localizedDomain = $routeAliases[$code];
+            }
 
-            // Check if the localized URI differs; if so, create a custom route for this locale
-            if ($localizedUri !== $sourceUri) {
-                // Create the localized route using the modified URI
-                $localizedRoute = $this->createLocalizedGetRoute($source, $localizedUri);
-
-                // Conditionally set the route name if it is named
-                $localizedRoute = $isNamed ? $localizedRoute->name(".$code") : $localizedRoute;
+            // Check if the localized URI or domain differs from the source ones
+            // If either condition is met, create a custom route for this locale
+            if ($sourceUri !== $localizedUri || $sourceDomain !== $localizedDomain) {
+                // Create the localized route using the modified settings
+                $localizedRoute = $this->createLocalizedGetRoute($source, $localizedUri, $localizedDomain, $isNamed ? ".$code" : null);
 
                 // Add the localized route to the lookup maps
                 $this->addLookups($source, $localizedRoute, [$code]);
@@ -368,9 +378,11 @@ class Group
      *
      * @param \Illuminate\Routing\Route $source
      * @param string $localizedUri
+     * @param string|null $localizedDomain
+     * @param string|null $name
      * @return \Illuminate\Routing\Route
      */
-    protected function createLocalizedGetRoute(Route $source, string $localizedUri) : Route
+    protected function createLocalizedGetRoute(Route $source, string $localizedUri, ?string $localizedDomain, ?string $name) : Route
     {
         $route = $this->router->newRoute('GET', $localizedUri, null)
             ->setAction($source->getAction())
@@ -378,6 +390,14 @@ class Group
             ->setWheres($source->wheres)
             ->withTrashed($source->allowsTrashedBindings())
             ->block($source->locksFor(), $source->waitsFor());
+
+        if (! is_null($localizedDomain)) {
+            $route->domain($localizedDomain);
+        }
+
+        if (! is_null($name)) {
+            $route->name($name);
+        }
 
         return $this->router->getRoutes()->add($route);
     }

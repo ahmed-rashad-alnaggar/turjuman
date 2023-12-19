@@ -888,17 +888,28 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Routes Aliases
+    | Route Aliases
     |--------------------------------------------------------------------------
     |
-    | Define route aliases for translated routes when 'display_location' is set to 'segment'.
+    | Define route aliases for translated routes when 'display_location' is segment or hidden.
     | Example: 'https://www.example.com/ar/عنا' instead of 'https://www.example.com/ar/about'.
     |
     */
 
-    'routes_aliases' => [
+    'route_aliases' => [
         /*'ar' => [
             '/about' => '/عنا'
         ]*/
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Locale Identifier
+    |--------------------------------------------------------------------------
+    |
+    | The locale identifier used in url parameters, session, cookies, and form input to identify the current locale.
+    |
+    */
+
+    'locale_identifier' => '_locale',
 ];
